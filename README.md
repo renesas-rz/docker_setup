@@ -31,6 +31,23 @@ Note that many command line options/features are only available when you first c
 ### 1.2 Files and Directories Inside vs Outside the Container
 When you operate inside a docker container, the entire container file system is isolated (contained) from the host system's file system. You can imagine from a security standpoint, this is very helpful. However, if your entire BSP build environment is located inside this container, you **will not** be able to access it from your normal Ubuntu Desktop environment. That will make things more difficult for you!
 
+<pre>
+┌─────────────────────────────────────────────┐
+│ Host System: Ubuntu 22.04                   │
+│                                             │
+│                         Docker Container    │
+│                      ┌───────────────────┐  │
+│ Host cannot access   │ Ubuntu 20.04      │  │
+│ files inside         │ Mini OS system    │  │
+│ conatiner -------->  │                   │  │
+│                      │ <-- Cannot access │  │
+│                      │     files outside │  │
+│                      │     container     │  │
+│                      └───────────────────┘  │
+└─────────────────────────────────────────────┘
+</pre>
+
+
 Therefore, you should choose a location on your host machine that will be accessible from **both** inside and outside of your docker container. Like a **shared directory**.
 
 I suggest using the **same path** for both inside and outside. For example, if you make a directory called "yocto" off your home directory and then that directory will be accessible from inside the docker container.
@@ -38,6 +55,37 @@ I suggest using the **same path** for both inside and outside. For example, if y
 &emsp; Host PC environment : /home/chris/yocto <br>
 &emsp; Inside docker container : /home/chris/yocto
 <br> In this case, you would pass the following command line option : --volume=/home/chris/yocto:/home/chris/yocto
+
+<pre>
+┌────────────────────────────────────────────────┐
+│ Host System: Ubuntu 22.04                      │
+│                                                │
+│                         Docker Container       │
+│                      ┌───────────────────────┐ │
+│ Host cannot access   │ Ubuntu 20.04          │ │
+│ files inside         │ Mini OS system        │ │
+│ conatiner -------->  │                       │ │
+│                      │ <-- Cannot access     │ │
+│                      │     files outside     │ │
+│                      │     container         │ │
+│                      ┴                       │ │
+│ /home/chris/yocto <-----> /home/chris/yocto  │ │
+│              (direct accesss)                │ │
+│                      ┬                       │ │
+│                      └───────────────────────┘ │
+└────────────────────────────────────────────────┘
+</pre>
+
+Then you can place your BSP directories under this shared 'yocto' directory.
+<pre>
+├── home
+│   ├── chris
+│   │   ├── yocto
+│   │   │   ├── downloads
+│   │   │   ├── rzg_vlp_v3.0.3
+│   │   │   ├── rzg_vlp_v3.0.5
+│   │   │   ├── xxx
+</pre>
 
 
 ### User Accounts Inside vs Outside the Container
